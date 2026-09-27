@@ -16,13 +16,13 @@ Five levels take you from a simple locked room to the collapsing core of NOVA's 
 
 ## Innovation
 
-The central innovation is that **natural language is the primary gameplay verb**, not a chat sidebar bolted onto a platformer. Typing "reverse gravity" or "turn this wall into a door" doesn't trigger a canned animation — it changes real, simulated game state (gravity direction, collision geometry, enemy AI) that the rest of the level reacts to. The tension the game is built around is entirely emergent: *what can I change, and is it worth what it costs?*
+The central innovation is that **natural language is the primary gameplay verb**, not a chat sidebar bolted onto a platformer. Typing "turn this wall into a door" or "freeze the enemies" doesn't trigger a canned animation — it changes real, simulated game state (collision geometry, enemy AI) that the rest of the level reacts to. The tension the game is built around is entirely emergent: *what can I change, and is it worth what it costs?*
 
 ## Gameplay
 
 - Run, jump, and navigate hazards and enemies across five hand-built levels.
 - Open the NOVA Command Console and type a command in plain English.
-- The command is interpreted locally (no external calls) into one of ten predefined, safe game actions.
+- The command is interpreted locally (no external calls) into one of nine predefined, safe game actions.
 - Every command consumes **Reality Stability**. As it drops, the world visually and mechanically destabilizes.
 - Reach each level's exit to progress. Reach the final extraction portal to end the game — your ending is determined by your final Stability, not chosen manually.
 
@@ -56,19 +56,17 @@ NOVA is a character, not a static tooltip. She greets you at 100% integrity, rea
 
 ## Natural Language Command System
 
-The console accepts free text. Input is lowercased, stripped of punctuation, and matched against a registry of ten commands (each with a list of natural aliases) in three passes: exact alias match → substring containment → keyword overlap scoring. Examples that all resolve to the same command:
+The console accepts free text. Input is lowercased, stripped of punctuation, and matched against a registry of nine commands (each with a list of natural aliases) in three passes: exact alias match → substring containment → keyword overlap scoring. Examples that all resolve to the same command:
 
-- `reverse gravity`, `flip gravity`, `invert gravity`, `reverse the gravity`
 - `freeze enemy`, `freeze enemies`, `stop the enemies`, `halt enemies`
 - `remove wall`, `make this wall disappear`, `turn this wall into a door`
 
-**Security note:** no player input is ever executed as code. There is no `eval()`, no `Function()` constructor, and no dynamic code execution anywhere in the codebase. Every recognized command maps to one of ten fixed, hand-written effect functions in `CommandManager._applyEffect()`. Unrecognized input simply produces a "NOVA: I don't recognize that instruction." message and costs nothing.
+**Security note:** no player input is ever executed as code. There is no `eval()`, no `Function()` constructor, and no dynamic code execution anywhere in the codebase. Every recognized command maps to one of nine fixed, hand-written effect functions in `CommandManager._applyEffect()`. Unrecognized input simply produces a "NOVA: I don't recognize that instruction." message and costs nothing.
 
 ### Command Registry
 
 | Command | Cost | Cooldown | Duration |
 |---|---|---|---|
-| Reverse Gravity | 12% | 4s | 5s |
 | Freeze Enemies | 15% | 5s | 4s |
 | Slow Enemies | 8% | 3s | 6s |
 | Create Platform | 10% | 2.5s | 8s |
@@ -98,7 +96,7 @@ An earlier version of this brief called for routing command text through the Gem
 
 ```
 glitched-reality/
-├── index.html        # All screens: menu, how-to-play, AI lab, credits, game, overlays
+├── index.html        # All screens: menu, how-to-play, credits, game, overlays
 ├── style.css          # Cyberpunk/glitch visual system, responsive layout, glitch tiers
 ├── game.js            # Entire engine (see module list below)
 ├── vercel.json         # Static hosting config
@@ -166,7 +164,7 @@ Then open the printed local URL in your browser.
 
 ## AI-Assisted Development
 
-This project was designed and built through a structured, iterative sequence of prompts (see the in-game **AI LAB** menu for the visual version of this pipeline):
+This project was designed and built through a structured, iterative sequence of prompts:
 
 ```
 IDEA
