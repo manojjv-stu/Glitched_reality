@@ -26,7 +26,7 @@ const CONFIG = {
     tier2: 70,   // minor glitches below this
     tier3: 40,   // major glitches below this
     tier4: 20,   // critical below this
-    regenOnStabilize: 25
+    regenOnStabilize: 18   // weakened safety net — hard mode
   },
 
   commandCooldownGlobal: 0.35 // tiny guard so spam doesn't double-fire in one frame
@@ -40,61 +40,61 @@ const COMMANDS = {
     name: 'Reverse Gravity',
     aliases: ['reverse gravity', 'flip gravity', 'invert gravity', 'reverse the gravity', 'flip the gravity', 'gravity reverse', 'upside down'],
     description: 'Flips gravity for a short time.',
-    cost: 12, cooldown: 8, duration: 5
+    cost: 12, cooldown: 4, duration: 5
   },
   freezeEnemies: {
     name: 'Freeze Enemies',
     aliases: ['freeze enemy', 'freeze enemies', 'freeze all enemies', 'stop the enemies', 'stop enemies', 'freeze them', 'halt enemies'],
     description: 'Freezes all enemies in place.',
-    cost: 15, cooldown: 10, duration: 4
+    cost: 15, cooldown: 5, duration: 4
   },
   slowEnemies: {
     name: 'Slow Enemies',
     aliases: ['slow enemies', 'slow the enemies', 'make enemies slow', 'slow down enemies', 'slow them down'],
     description: 'Slows enemy movement.',
-    cost: 8, cooldown: 6, duration: 6
+    cost: 8, cooldown: 3, duration: 6
   },
   createPlatform: {
     name: 'Create Platform',
     aliases: ['create platform', 'create a platform', 'make a platform', 'spawn platform', 'build platform', 'new platform'],
     description: 'Conjures a temporary platform in front of you.',
-    cost: 10, cooldown: 5, duration: 8
+    cost: 10, cooldown: 2.5, duration: 8
   },
   removeBarrier: {
     name: 'Remove Barrier',
     aliases: ['remove obstacle', 'remove barrier', 'remove wall', 'make wall disappear', 'make this wall disappear', 'delete wall', 'clear obstacle', 'turn wall into door', 'turn this wall into a door', 'open wall', 'dissolve wall'],
     description: 'Dissolves the nearest breakable wall.',
-    cost: 14, cooldown: 9, duration: 0
+    cost: 14, cooldown: 4.5, duration: 0
   },
   invisibility: {
     name: 'Temporary Invisibility',
     aliases: ['invisibility', 'give me invisibility', 'temporary invisibility', 'turn invisible', 'go invisible', 'make me invisible'],
     description: 'Enemies cannot detect you for a short time.',
-    cost: 16, cooldown: 12, duration: 5
+    cost: 16, cooldown: 6, duration: 5
   },
   teleport: {
     name: 'Short Teleport',
     aliases: ['teleport', 'teleport me', 'teleport forward', 'short teleport', 'blink forward', 'teleport me to the exit'],
     description: 'Blinks you forward a short distance.',
-    cost: 9, cooldown: 6, duration: 0
+    cost: 9, cooldown: 3, duration: 0
   },
   timeSlow: {
     name: 'Time Slow',
     aliases: ['time slow', 'slow time', 'slow down time', 'bullet time'],
     description: 'Slows the entire world briefly (except you).',
-    cost: 20, cooldown: 14, duration: 4
+    cost: 20, cooldown: 7, duration: 4
   },
   revealPath: {
     name: 'Reveal Hidden Path',
     aliases: ['reveal hidden path', 'reveal path', 'show hidden path', 'reveal secret', 'find hidden path'],
     description: 'Reveals a hidden platform somewhere in the level.',
-    cost: 6, cooldown: 10, duration: 0
+    cost: 6, cooldown: 5, duration: 0
   },
   stabilize: {
     name: 'Emergency Stabilize',
     aliases: ['stabilize', 'emergency stabilize', 'restore stability', 'fix reality', 'repair reality'],
     description: 'Restores a chunk of Reality Stability. Long cooldown.',
-    cost: 0, cooldown: 45, duration: 0
+    cost: 0, cooldown: 22.5, duration: 0
   }
 };
 
@@ -267,7 +267,7 @@ function buildLevels() {
       ],
       hazards: [],
       enemies: [
-        { type: 'guardian', x: 1000, y: 460, range: 160, speed: 60 }
+        { type: 'guardian', x: 1000, y: 460, range: 200, speed: 80 }
       ],
       exit: { x: 2120, y: 440, w: 50, h: 60 },
       allowedHints: ['freezeEnemies', 'createPlatform', 'removeBarrier']
@@ -296,7 +296,7 @@ function buildLevels() {
         { x: 760, y: 460, w: 60, h: 40 } // pit-like gap area handled via no-platform already
       ],
       enemies: [
-        { type: 'seeker', x: 1200, y: 460, range: 500, speed: 90 }
+        { type: 'seeker', x: 1200, y: 460, range: 560, speed: 125 }
       ],
       exit: { x: 2330, y: 440, w: 50, h: 60 },
       allowedHints: ['reverseGravity', 'teleport', 'createPlatform']
@@ -322,9 +322,10 @@ function buildLevels() {
       ],
       hazards: [],
       enemies: [
-        { type: 'seeker', x: 700, y: 460, range: 480, speed: 110 },
-        { type: 'seeker', x: 1300, y: 460, range: 480, speed: 120 },
-        { type: 'guardian', x: 1900, y: 460, range: 200, speed: 80 }
+        { type: 'seeker', x: 700, y: 460, range: 540, speed: 150 },
+        { type: 'seeker', x: 1300, y: 460, range: 540, speed: 160 },
+        { type: 'seeker', x: 1700, y: 460, range: 520, speed: 155 },
+        { type: 'guardian', x: 1900, y: 460, range: 240, speed: 110 }
       ],
       exit: { x: 2540, y: 440, w: 50, h: 60 },
       allowedHints: ['freezeEnemies', 'slowEnemies', 'invisibility', 'teleport']
@@ -352,9 +353,10 @@ function buildLevels() {
       ],
       hazards: [],
       enemies: [
-        { type: 'glitch', x: 900, y: 460, range: 300, speed: 140 },
-        { type: 'seeker', x: 1500, y: 460, range: 500, speed: 130 },
-        { type: 'glitch', x: 2000, y: 460, range: 300, speed: 150 }
+        { type: 'glitch', x: 900, y: 460, range: 350, speed: 190 },
+        { type: 'guardian', x: 1200, y: 460, range: 150, speed: 110 },
+        { type: 'seeker', x: 1500, y: 460, range: 550, speed: 175 },
+        { type: 'glitch', x: 2000, y: 460, range: 350, speed: 200 }
       ],
       exit: { x: 2540, y: 440, w: 50, h: 60 },
       allowedHints: ['revealPath', 'stabilize', 'timeSlow', 'teleport']
@@ -384,10 +386,11 @@ function buildLevels() {
       ],
       hazards: [],
       enemies: [
-        { type: 'seeker', x: 800, y: 460, range: 520, speed: 140 },
-        { type: 'glitch', x: 1400, y: 460, range: 320, speed: 160 },
-        { type: 'seeker', x: 1900, y: 460, range: 520, speed: 150 },
-        { type: 'guardian', x: 2300, y: 460, range: 220, speed: 100 }
+        { type: 'seeker', x: 800, y: 460, range: 580, speed: 190 },
+        { type: 'glitch', x: 1400, y: 460, range: 370, speed: 210 },
+        { type: 'seeker', x: 1900, y: 460, range: 580, speed: 200 },
+        { type: 'guardian', x: 2300, y: 460, range: 260, speed: 130 },
+        { type: 'glitch', x: 2500, y: 460, range: 350, speed: 210 }
       ],
       exit: { x: 2740, y: 440, w: 50, h: 60 },
       allowedHints: ['stabilize', 'invisibility', 'teleport', 'timeSlow']
@@ -425,7 +428,7 @@ class Enemy {
     this.slowFactor = 1;
     this.slowUntil = 0;
     this.visible = true;
-    this.glitchTimer = 1 + Math.random() * 2;
+    this.glitchTimer = 0.6 + Math.random() * 1.4;
     this.w = 26; this.h = 34;
     this.alertRadius = this.range || 200;
   }
@@ -435,7 +438,7 @@ class Enemy {
       this.glitchTimer -= dt;
       if (this.glitchTimer <= 0) {
         this.visible = !this.visible;
-        this.glitchTimer = 0.8 + Math.random() * 1.6;
+        this.glitchTimer = 0.5 + Math.random() * 1.0;
       }
       if (!this.visible) return; // doesn't move while phased out
     }
@@ -1116,7 +1119,7 @@ class Game {
 
     // Fell off the world -> respawn (soft fail, small stability cost)
     if (p.y > this.level.height + 100) {
-      this.reality.spend(4);
+      this.reality.spend(7);
       p.reset();
       this.particles.burst(p.x + p.w / 2, p.y, 14, '#ff4b6e', { life: 0.5 });
     }
@@ -1199,13 +1202,14 @@ class Game {
   _updateFlickerPlatforms(dt) {
     for (const p of this.level.platforms) {
       if (p.type !== 'flicker' || p.stabilized) continue;
-      p._flickerTimer = (p._flickerTimer || Math.random() * 3) - dt;
+      p._flickerTimer = (p._flickerTimer || Math.random() * 2) - dt;
       if (p._flickerTimer <= 0) {
         p._phaseOut = !p._phaseOut;
-        p._flickerTimer = p._phaseOut ? (0.6 + Math.random()) : (2 + Math.random() * 2);
+        p._flickerTimer = p._phaseOut ? (0.9 + Math.random() * 0.7) : (1.3 + Math.random() * 1.2);
       }
-      // At higher instability tiers, flicker more aggressively
-      if (this.reality.tier >= 3) p._flickerTimer -= dt * 0.5;
+      // At higher instability tiers, flicker much more aggressively — hard mode
+      if (this.reality.tier >= 3) p._flickerTimer -= dt * 0.8;
+      else if (this.reality.tier === 2) p._flickerTimer -= dt * 0.3;
     }
   }
 
