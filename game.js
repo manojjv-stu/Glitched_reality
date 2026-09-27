@@ -36,12 +36,6 @@ const CONFIG = {
    Each has: aliases (for intent matching), description, cost, cooldown,
    duration (0 = instant), and an `effect` executed by CommandManager. */
 const COMMANDS = {
-  reverseGravity: {
-    name: 'Reverse Gravity',
-    aliases: ['reverse gravity', 'flip gravity', 'invert gravity', 'reverse the gravity', 'flip the gravity', 'gravity reverse', 'upside down'],
-    description: 'Flips gravity for a short time.',
-    cost: 12, cooldown: 1.5, duration: 5
-  },
   freezeEnemies: {
     name: 'Freeze Enemies',
     aliases: ['freeze enemy', 'freeze enemies', 'freeze all enemies', 'stop the enemies', 'stop enemies', 'freeze them', 'halt enemies'],
@@ -273,23 +267,21 @@ function buildLevels() {
       allowedHints: ['freezeEnemies', 'createPlatform', 'removeBarrier']
     },
 
-    // ---------------- LEVEL 2 — GRAVITY ----------------
+    // ---------------- LEVEL 2 — THE GAP ----------------
     {
-      id: 2, name: 'GRAVITY',
+      id: 2, name: 'THE GAP',
       width: 2400, height: 620,
       spawn: { x: 60, y: 400 },
-      objective: 'Reach the upper chamber — reverse gravity to climb',
-      intro: "You reached the second chamber. This area is gravity-locked. Some paths only open... upside down.",
+      objective: 'Cross the fractured sector to the exit',
+      intro: "You reached the second chamber. Structural integrity here is inconsistent — some ground is only there if you know where to look.",
       outro: "You should not have solved that so quickly.",
       platforms: [
         { x: 0, y: 500, w: 420, h: 40, type: 'solid' },
         { x: 480, y: 500, w: 260, h: 40, type: 'solid' },
-        { x: 480, y: 40, w: 260, h: 20, type: 'solid' },   // ceiling platform, reachable via reverse gravity
         { x: 820, y: 500, w: 200, h: 40, type: 'solid' },
-        { x: 820, y: 120, w: 200, h: 20, type: 'solid' },
         { x: 1100, y: 500, w: 260, h: 40, type: 'solid' },
         { x: 1440, y: 500, w: 200, h: 40, type: 'solid' },
-        { x: 1440, y: 100, w: 200, h: 20, type: 'solid' },
+        { x: 1640, y: 460, w: 80, h: 20, type: 'hidden' },   // revealed with "reveal hidden path"
         { x: 1720, y: 500, w: 680, h: 40, type: 'solid' }
       ],
       hazards: [
@@ -299,7 +291,7 @@ function buildLevels() {
         { type: 'seeker', x: 1200, y: 460, range: 560, speed: 125 }
       ],
       exit: { x: 2330, y: 440, w: 50, h: 60 },
-      allowedHints: ['reverseGravity', 'teleport', 'createPlatform']
+      allowedHints: ['teleport', 'createPlatform', 'revealPath']
     },
 
     // ---------------- LEVEL 3 — THE HUNT ----------------
@@ -602,7 +594,6 @@ class CommandManager {
 
   _reactionLine(id) {
     const lines = {
-      reverseGravity: ["Gravitational constant... altered.", "That should not be possible."],
       freezeEnemies: ["Processes suspended. Temporarily.", "You paused my agents."],
       slowEnemies: ["Throttling detected in hostile routines."],
       createPlatform: ["You are... building? Within my world?", "Unauthorized geometry inserted."],
@@ -621,10 +612,6 @@ class CommandManager {
   _applyEffect(id, now) {
     const g = this.game;
     switch (id) {
-      case 'reverseGravity':
-        g.gravityDir = -1;
-        setTimeout(() => { g.gravityDir = 1; }, COMMANDS[id].duration * 1000);
-        break;
       case 'freezeEnemies':
         for (const e of g.enemies) { e.frozen = true; e.frozenUntil = now + COMMANDS[id].duration; }
         break;
