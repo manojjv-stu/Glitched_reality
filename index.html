@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLITCHED REALITY</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SCANLINE / NOISE OVERLAY (global glitch layer) -->
+<div id="glitch-overlay" class="glitch-overlay"></div>
+<div id="scanlines" class="scanlines"></div>
+
+<!-- ============ SMALL SCREEN WARNING ============ -->
+<div id="small-screen-notice" class="small-screen-notice hidden">
+  <p>Keyboard recommended for the full experience. GLITCHED REALITY is best played on a desktop or laptop.</p>
+  <button id="dismiss-notice">Continue Anyway</button>
+</div>
+
+<!-- ============ MAIN MENU ============ -->
+<section id="screen-menu" class="screen active">
+  <div class="menu-bg-grid"></div>
+  <div class="menu-content">
+    <h1 class="title glitch-text" data-text="GLITCHED REALITY">GLITCHED REALITY</h1>
+    <p class="subtitle">Don't play by the rules. Rewrite them.</p>
+    <nav class="menu-buttons">
+      <button class="menu-btn" id="btn-play">PLAY</button>
+      <button class="menu-btn" id="btn-howto">HOW TO PLAY</button>
+      <button class="menu-btn" id="btn-ailab">AI LAB</button>
+      <button class="menu-btn" id="btn-credits">CREDITS</button>
+    </nav>
+    <div class="menu-footer">
+      <label class="mute-toggle"><input type="checkbox" id="mute-checkbox"> Mute Audio</label>
+      <label class="mute-toggle"><input type="checkbox" id="motion-checkbox"> Reduce Motion</label>
+      <span id="save-progress-note" class="save-note"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW TO PLAY ============ -->
+<section id="screen-howto" class="screen">
+  <div class="panel">
+    <h2>HOW TO PLAY</h2>
+    <div class="howto-grid">
+      <div class="howto-card">
+        <h3>MOVEMENT</h3>
+        <p><kbd>A</kbd> / <kbd>◀</kbd> and <kbd>D</kbd> / <kbd>▶</kbd> to move.</p>
+      </div>
+      <div class="howto-card">
+        <h3>JUMP</h3>
+        <p><kbd>W</kbd> / <kbd>▲</kbd> / <kbd>SPACE</kbd> to jump.</p>
+      </div>
+      <div class="howto-card">
+        <h3>INTERACT</h3>
+        <p><kbd>E</kbd> to interact with objects and terminals.</p>
+      </div>
+      <div class="howto-card">
+        <h3>REALITY COMMAND</h3>
+        <p>Type a command into the NOVA console and press EXECUTE (or Enter). Try "reverse gravity" or "freeze enemies".</p>
+      </div>
+      <div class="howto-card">
+        <h3>PAUSE</h3>
+        <p><kbd>ESC</kbd> pauses the game at any time.</p>
+      </div>
+      <div class="howto-card important">
+        <h3>IMPORTANT</h3>
+        <p>Every command has a <strong>Reality Stability</strong> cost. Spend it wisely — at 0% reality collapses.</p>
+      </div>
+    </div>
+    <button class="menu-btn back-btn" data-back="menu">BACK</button>
+  </div>
+</section>
+
+<!-- ============ AI LAB ============ -->
+<section id="screen-ailab" class="screen">
+  <div class="panel">
+    <h2>AI LAB</h2>
+    <p class="ailab-intro">How this game was designed and built through iterative AI prompting.</p>
+    <div class="pipeline">
+      <div class="pipe-step"><span>IDEA</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step"><span>GAME DESIGN PROMPT</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step"><span>ARCHITECTURE PROMPT</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step"><span>GAMEPLAY PROMPT</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step"><span>VISUAL DESIGN PROMPT</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step"><span>TESTING PROMPT</span></div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-step final"><span>FINAL GAME</span></div>
+    </div>
+    <div class="prompt-examples">
+      <blockquote>"Design an innovative game where natural language can change the game world."</blockquote>
+      <blockquote>"Implement a Reality Stability mechanic that punishes overuse of reality-altering commands with escalating visual and gameplay glitches."</blockquote>
+      <blockquote>"Build a lightweight custom 2D physics engine — no heavy libraries — so the game runs at 60 FPS on a normal laptop."</blockquote>
+      <blockquote>"Design 5 levels that each introduce or combine mechanics instead of repeating the same layout."</blockquote>
+      <blockquote>"Write a command interpreter that normalizes natural-language variations ('flip gravity', 'invert gravity', 'reverse the gravity') to the same safe, predefined action — with no eval() or arbitrary code execution."</blockquote>
+      <blockquote>"Run a full QA pass: test every command alias, every stability band, edge cases like command spam and empty input, and confirm no memory leaks from timers or particles."</blockquote>
+    </div>
+    <button class="menu-btn back-btn" data-back="menu">BACK</button>
+  </div>
+</section>
+
+<!-- ============ CREDITS ============ -->
+<section id="screen-credits" class="screen">
+  <div class="panel">
+    <h2>CREDITS</h2>
+    <div class="credits-block">
+      <p class="credits-label">GAME CREATED BY</p>
+      <p class="credits-value">[YOUR NAME]</p>
+      <p class="credits-label">AI DESIGN &amp; DEVELOPMENT</p>
+      <p class="credits-value">Claude / AI-assisted development</p>
+      <p class="credits-label">TECHNOLOGY</p>
+      <p class="credits-value">HTML5 · CSS3 · JavaScript · Canvas API</p>
+      <p class="credits-label">BUILT FOR</p>
+      <p class="credits-value">[COMPETITION NAME]</p>
+    </div>
+    <button class="menu-btn back-btn" data-back="menu">BACK</button>
+  </div>
+</section>
+
+<!-- ============ GAME SCREEN ============ -->
+<section id="screen-game" class="screen">
+  <div id="game-wrap" class="game-wrap">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-top-left">
+        <div class="hud-level" id="hud-level">LEVEL 01 — AWAKENING</div>
+        <div class="hud-stability-label">REALITY STABILITY</div>
+        <div class="stability-bar-wrap">
+          <div class="stability-bar" id="stability-bar"></div>
+          <span class="stability-pct" id="stability-pct">100%</span>
+        </div>
+      </div>
+      <div class="hud-top-right">
+        <div class="nova-status">
+          <span class="nova-dot" id="nova-dot"></span>
+          <span>NOVA STATUS: <b id="nova-status-text">ONLINE</b></span>
+        </div>
+        <button id="btn-pause" class="icon-btn" title="Pause (ESC)">⏸</button>
+      </div>
+      <div class="hud-objective" id="hud-objective">OBJECTIVE: Reach the exit door</div>
+    </div>
+
+    <!-- NOVA dialogue box -->
+    <div id="nova-dialogue" class="nova-dialogue hidden">
+      <div class="nova-avatar">N</div>
+      <div class="nova-text" id="nova-text"></div>
+    </div>
+
+    <!-- Command console -->
+    <div id="console-wrap" class="console-wrap">
+      <div class="console-header">
+        <span>NOVA COMMAND CONSOLE</span>
+        <span class="console-hint">rewrite the rules of this world</span>
+      </div>
+      <div class="console-body">
+        <span class="console-prompt">&gt;</span>
+        <input type="text" id="console-input" class="console-input" placeholder="type a command… e.g. 'reverse gravity'" autocomplete="off" maxlength="60">
+        <button id="console-execute" class="console-execute">EXECUTE</button>
+      </div>
+      <div id="console-feedback" class="console-feedback"></div>
+      <div class="command-chips" id="command-chips"></div>
+    </div>
+
+    <!-- Mobile-ish on-screen controls hint -->
+    <div class="controls-hint">
+      <span>A/D move</span><span>W/SPACE jump</span><span>E interact</span><span>ESC pause</span><span>ENTER run command</span>
+    </div>
+  </div>
+
+  <!-- PAUSE OVERLAY -->
+  <div id="overlay-pause" class="game-overlay hidden">
+    <div class="overlay-panel">
+      <h2>PAUSED</h2>
+      <button class="menu-btn" id="btn-resume">RESUME</button>
+      <button class="menu-btn" id="btn-restart-level">RESTART LEVEL</button>
+      <button class="menu-btn" id="btn-quit-menu">QUIT TO MENU</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="overlay-gameover" class="game-overlay hidden">
+    <div class="overlay-panel collapse-panel">
+      <h2 class="collapse-title glitch-text" data-text="REALITY FAILURE">REALITY FAILURE</h2>
+      <p class="nova-quote">NOVA: <span id="gameover-nova-line">"Reality could not sustain your modifications."</span></p>
+      <p class="collapse-sub">STABILITY COLLAPSED</p>
+      <button class="menu-btn" id="btn-tryagain">TRY AGAIN</button>
+      <button class="menu-btn" id="btn-gameover-menu">MAIN MENU</button>
+    </div>
+  </div>
+
+  <!-- LEVEL COMPLETE OVERLAY -->
+  <div id="overlay-levelcomplete" class="game-overlay hidden">
+    <div class="overlay-panel">
+      <h2>LEVEL COMPLETE</h2>
+      <p class="nova-quote" id="levelcomplete-nova-line"></p>
+      <button class="menu-btn" id="btn-next-level">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- ENDING OVERLAY -->
+  <div id="overlay-ending" class="game-overlay hidden">
+    <div class="overlay-panel ending-panel">
+      <h2 id="ending-title" class="glitch-text" data-text="ESCAPE">ESCAPE</h2>
+      <p class="ending-desc" id="ending-desc"></p>
+      <div class="ending-stats" id="ending-stats"></div>
+      <button class="menu-btn" id="btn-ending-menu">MAIN MENU</button>
+      <button class="menu-btn" id="btn-ending-restart">PLAY AGAIN</button>
+    </div>
+  </div>
+</section>
+
+<script src="game.js"></script>
+</body>
+</html>
