@@ -785,6 +785,7 @@ class Game {
     this.tempPlatforms = [];
     this.camX = 0;
     this.camY = 0;
+    this.hudBottomReserve = 190; // space reserved for the command console, measured live below
     this.gravityDir = 1;
     this.worldTimeScale = 1;
     this.keys = {};
@@ -794,6 +795,11 @@ class Game {
     this.screenShake = 0;
 
     this.stats = { commandsUsed: 0, commandLog: [], deaths: 0, firstCommandUsed: false };
+    this.stars = Array.from({ length: 90 }, () => ({
+      x: Math.random(), y: Math.random() * 0.65, r: Math.random() * 1.4 + 0.4, tw: Math.random() * 6
+    }));
+    this.skylineFar = [];
+    this.skylineNear = [];
 
     this._resizeCanvas();
     window.addEventListener('resize', () => this._resizeCanvas());
@@ -804,7 +810,7 @@ class Game {
   }
 
   _resizeCanvas() {
-    const wrap = document.getElementById('game-wrap');
+    const wrap = document.getElementById('viewport');
     // If the game screen isn't the active (visible) one yet, its wrapper
     // reports 0×0 — fall back to the window size so the canvas is never
     // sized to nothing and silently renders blank.
@@ -814,6 +820,17 @@ class Game {
     if (!h) h = window.innerHeight;
     this.canvas.width = w;
     this.canvas.height = h;
+    this._measureHudReserve();
+  }
+
+  /* Reads the actual rendered height of the command console so the vertical
+     camera can keep the playable path from ever being drawn behind it.
+     Only meaningful while the game screen is visible. */
+  _measureHudReserve() {
+    const consoleEl = document.getElementById('console-wrap');
+    if (!consoleEl) return;
+    const rect = consoleEl.getBoundingClientRect();
+    if (rect.height > 0) this.hudBottomReserve = Math.ceil(rect.height + 34);
   }
 
   /* ---------------- INPUT ---------------- */
@@ -971,6 +988,8 @@ class Game {
     this._resizeCanvas();
     this.camX = Math.max(0, Math.min(this.level.width - this.canvas.width, this.player.x - this.canvas.width / 2));
     this.camY = this._computeTargetCamY(this.player.y);
+    this.skylineFar = this._generateSkyline(this.level.width, 130, 60, 180);
+    this.skylineNear = this._generateSkyline(this.level.width, 190, 90, 260);
 
     this.ui.setLevelLabel(this.level.id, this.level.name);
     this.ui.setObjective(this.level.objective);
@@ -1138,6 +1157,28 @@ class Game {
     return Math.max(0, Math.min(this.level.height - this.canvas.height, target));
   }
 
+  /* Deterministic-enough decorative skyline for background parallax. Purely
+     visual — not tied to world collision, so it's cheap to regenerate. */
+  _generateSkyline(levelWidth, avgGap, minH, maxH) {
+    const buildings = [];
+    let x = -300;
+    while (x < levelWidth + 300) {
+      const bw = 50 + Math.random() * 80;
+      const bh = minH + Math.random() * (maxH - minH);
+      const windows = [];
+      const cols = Math.max(1, Math.floor(bw / 16));
+      const rows = Math.max(2, Math.floor(bh / 22));
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (Math.random() < 0.35) windows.push({ c, r });
+        }
+      }
+      buildings.push({ x, w: bw, h: bh, cols, rows, windows, hue: Math.random() < 0.5 ? '#2ef2ff' : '#ffcc4d' });
+      x += bw + avgGap * (0.5 + Math.random());
+    }
+    return buildings;
+  }
+
   /* ---------------- ENEMIES / HAZARDS ---------------- */
   _updateEnemies(dt) {
     const now = performance.now() / 1000;
@@ -1222,24 +1263,29 @@ class Game {
   _draw() {
     const ctx = this.ctx;
     const w = this.canvas.width, h = this.canvas.height;
+    const nowSec = performance.now() / 1000;
     ctx.save();
     if (this.screenShake > 0) {
       ctx.translate((Math.random() - 0.5) * this.screenShake, (Math.random() - 0.5) * this.screenShake);
     }
-    // background
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#070912');
-    grad.addColorStop(1, '#03040a');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
 
-    // parallax grid
-    ctx.strokeStyle = 'rgba(46,242,255,0.05)';
-    ctx.lineWidth = 1;
-    const gridOffset = -(this.camX * 0.4) % 60;
-    for (let x = gridOffset; x < w; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    this._drawSkyBackground(ctx, w, h, nowSec);
 
     if (!this.level) { ctx.restore(); return; }
+
+    // ground haze / horizon glow near the baseline of the level for depth
+    const baseline = this.level.height - this.camY;
+    const haze = ctx.createLinearGradient(0, baseline - 220, 0, Math.min(h, baseline + 40));
+    haze.addColorStop(0, 'rgba(46,242,255,0)');
+    haze.addColorStop(1, 'rgba(46,242,255,0.06)');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, Math.max(0, baseline - 220), w, h);
+
+    // fine foreground grid (subtle, world-locked so it reads as "floor" not wallpaper)
+    ctx.strokeStyle = 'rgba(46,242,255,0.05)';
+    ctx.lineWidth = 1;
+    const gridOffsetX = -(this.camX) % 60;
+    for (let x = gridOffsetX; x < w; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
 
     // platforms
     for (const p of this.level.platforms) {
@@ -1260,33 +1306,19 @@ class Game {
     // exit
     const ex = this.level.exit;
     ctx.save();
-    ctx.shadowColor = '#39ff88'; ctx.shadowBlur = 18;
-    ctx.fillStyle = 'rgba(57,255,136,0.25)';
+    const exPulse = 0.2 + Math.abs(Math.sin(nowSec * 3)) * 0.15;
+    ctx.shadowColor = '#39ff88'; ctx.shadowBlur = 20;
+    ctx.fillStyle = `rgba(57,255,136,${exPulse})`;
     ctx.fillRect(ex.x - this.camX, ex.y - this.camY, ex.w, ex.h);
     ctx.strokeStyle = '#39ff88'; ctx.lineWidth = 2;
     ctx.strokeRect(ex.x - this.camX, ex.y - this.camY, ex.w, ex.h);
     ctx.restore();
 
     // enemies
-    for (const e of this.enemies) {
-      if (e.visible === false) continue;
-      let color = e.type === 'seeker' ? '#ff4b6e' : e.type === 'guardian' ? '#ffcc4d' : '#b26bff';
-      if (e.frozen) color = '#7f8ba3';
-      ctx.save();
-      ctx.shadowColor = color; ctx.shadowBlur = 10;
-      ctx.fillStyle = color;
-      ctx.fillRect(e.x - this.camX, e.y - this.camY, e.w, e.h);
-      ctx.restore();
-    }
+    for (const e of this.enemies) this._drawEnemySprite(ctx, e, nowSec);
 
     // player
-    const p = this.player;
-    ctx.save();
-    ctx.globalAlpha = p.invisible ? 0.28 : 1;
-    ctx.shadowColor = '#2ef2ff'; ctx.shadowBlur = 14;
-    ctx.fillStyle = '#e8fbff';
-    ctx.fillRect(p.x - this.camX, p.y - this.camY, p.w, p.h);
-    ctx.restore();
+    this._drawPlayerSprite(ctx, this.player, nowSec);
 
     this.particles.draw(ctx, this.camX, this.camY);
 
@@ -1305,6 +1337,145 @@ class Game {
     ctx.restore();
   }
 
+  /* Layered sky: gradient + twinkling stars + two parallax skyline bands.
+     Purely decorative — none of this participates in collision. */
+  _drawSkyBackground(ctx, w, h, nowSec) {
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#0a0e1c');
+    grad.addColorStop(0.55, '#070a14');
+    grad.addColorStop(1, '#03040a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    for (const s of this.stars) {
+      const alpha = 0.25 + 0.5 * Math.abs(Math.sin(nowSec * 0.8 + s.tw));
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#cfe9ff';
+      ctx.beginPath();
+      ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    this._drawSkylineLayer(ctx, w, h, this.skylineFar, this.camX * 0.12, 0.42, 'rgba(18,24,42,0.75)', 0.35);
+    this._drawSkylineLayer(ctx, w, h, this.skylineNear, this.camX * 0.28, 0.58, 'rgba(12,16,30,0.92)', 0.6);
+  }
+
+  _drawSkylineLayer(ctx, w, h, buildings, parallaxOffset, baselineFrac, fillColor, windowAlpha) {
+    if (!buildings || !buildings.length) return;
+    const baseline = h * (baselineFrac + 0.28);
+    ctx.save();
+    ctx.fillStyle = fillColor;
+    for (const b of buildings) {
+      const bx = b.x - parallaxOffset;
+      if (bx + b.w < -50 || bx > w + 50) continue;
+      const by = baseline - b.h;
+      ctx.fillRect(bx, by, b.w, b.h);
+      const cw = b.w / b.cols;
+      const rh = b.h / b.rows;
+      ctx.save();
+      ctx.globalAlpha = windowAlpha;
+      ctx.fillStyle = b.hue;
+      for (const win of b.windows) {
+        ctx.fillRect(bx + win.c * cw + 2, by + win.r * rh + 2, cw - 4, rh - 4);
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  /* Stylized humanoid player: rounded glowing body, visor, and a simple
+     2-frame leg cycle driven by horizontal speed. */
+  _drawPlayerSprite(ctx, p, nowSec) {
+    const x = p.x - this.camX, y = p.y - this.camY;
+    const moving = Math.abs(p.vx) > 20 && p.onGround;
+    const bob = moving ? Math.sin(nowSec * 12) * 2 : 0;
+    ctx.save();
+    ctx.globalAlpha = p.invisible ? 0.28 : 1;
+    ctx.translate(x + p.w / 2, y + p.h / 2 + bob);
+    ctx.scale(p.facing >= 0 ? 1 : -1, 1);
+
+    // legs
+    const legSwing = moving ? Math.sin(nowSec * 14) * 5 : 0;
+    ctx.fillStyle = '#6fc9dd';
+    ctx.fillRect(-8, p.h / 2 - 12 - legSwing * 0.3, 6, 12 + legSwing * 0.3);
+    ctx.fillRect(2, p.h / 2 - 12 + legSwing * 0.3, 6, 12 - legSwing * 0.3);
+
+    // body
+    ctx.shadowColor = '#2ef2ff'; ctx.shadowBlur = 14;
+    this._roundRectPath(ctx, -p.w / 2, -p.h / 2, p.w, p.h * 0.78, 7);
+    const bodyGrad = ctx.createLinearGradient(0, -p.h / 2, 0, p.h / 4);
+    bodyGrad.addColorStop(0, '#f2fdff');
+    bodyGrad.addColorStop(1, '#8fe3ff');
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.strokeStyle = '#2ef2ff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // visor
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = '#04202a';
+    ctx.fillRect(-p.w / 2 + 4, -p.h / 2 + 7, p.w - 8, 7);
+    ctx.fillStyle = '#39ffe0';
+    ctx.fillRect(-p.w / 2 + 6, -p.h / 2 + 8.5, p.w - 12, 3);
+    ctx.restore();
+  }
+
+  /* Distinct silhouettes per enemy type instead of flat rectangles. */
+  _drawEnemySprite(ctx, e, nowSec) {
+    if (e.visible === false) return;
+    const x = e.x - this.camX, y = e.y - this.camY;
+    const cx = x + e.w / 2, cy = y + e.h / 2;
+    let color = e.type === 'seeker' ? '#ff4b6e' : e.type === 'guardian' ? '#ffcc4d' : '#b26bff';
+    if (e.frozen) color = '#7f8ba3';
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.shadowColor = color; ctx.shadowBlur = e.type === 'glitch' ? 16 : 10;
+    ctx.fillStyle = color;
+
+    if (e.type === 'seeker') {
+      const pulse = 1 + Math.sin(nowSec * 6) * 0.08;
+      ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-e.w / 2 * pulse, -e.h / 2 * pulse, e.w * pulse, e.h * pulse);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillStyle = '#2a0510';
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+    } else if (e.type === 'guardian') {
+      ctx.beginPath();
+      const r = e.w / 1.6;
+      for (let i = 0; i < 6; i++) {
+        const ang = (Math.PI / 3) * i - Math.PI / 6;
+        const px = Math.cos(ang) * r, py = Math.sin(ang) * r * 0.85;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#4a3a00'; ctx.stroke();
+    } else {
+      // glitch: jittery shard, flickers in opacity to read as unstable
+      ctx.globalAlpha = 0.55 + Math.random() * 0.4;
+      const j = () => (Math.random() - 0.5) * 6;
+      ctx.beginPath();
+      ctx.moveTo(-e.w / 2 + j(), -e.h / 2 + j());
+      ctx.lineTo(e.w / 2 + j(), -e.h / 3 + j());
+      ctx.lineTo(e.w / 3 + j(), e.h / 2 + j());
+      ctx.lineTo(-e.w / 3 + j(), e.h / 3 + j());
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  _roundRectPath(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
   _drawRect(ctx, r, fill, border, glow) {
     ctx.save();
     if (glow) { ctx.shadowColor = border; ctx.shadowBlur = 14; }
@@ -1313,6 +1484,13 @@ class Game {
     ctx.strokeStyle = border;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(r.x - this.camX, r.y - this.camY, r.w, r.h);
+    // thin top highlight so platforms read as solid ground, not a wireframe box
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(r.x - this.camX + 1, r.y - this.camY + 1);
+    ctx.lineTo(r.x - this.camX + r.w - 1, r.y - this.camY + 1);
+    ctx.stroke();
     ctx.restore();
   }
 }
