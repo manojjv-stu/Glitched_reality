@@ -40,7 +40,7 @@ const COMMANDS = {
     name: 'Reverse Gravity',
     aliases: ['reverse gravity', 'flip gravity', 'invert gravity', 'reverse the gravity', 'flip the gravity', 'gravity reverse', 'upside down'],
     description: 'Flips gravity for a short time.',
-    cost: 12, cooldown: 4, duration: 5
+    cost: 12, cooldown: 1.5, duration: 5
   },
   freezeEnemies: {
     name: 'Freeze Enemies',
@@ -887,7 +887,6 @@ class Game {
   _bindMenus() {
     document.getElementById('btn-play').addEventListener('click', () => { this.audio.click(); this.startGame(); });
     document.getElementById('btn-howto').addEventListener('click', () => { this.audio.click(); this.ui.showScreen('howto'); });
-    document.getElementById('btn-ailab').addEventListener('click', () => { this.audio.click(); this.ui.showScreen('ailab'); });
     document.getElementById('btn-credits').addEventListener('click', () => { this.audio.click(); this.ui.showScreen('credits'); });
     document.querySelectorAll('.back-btn').forEach(b => b.addEventListener('click', () => { this.audio.click(); this.ui.showScreen(b.dataset.back); }));
 
