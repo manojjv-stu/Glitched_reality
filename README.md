@@ -68,16 +68,16 @@ The console accepts free text. Input is lowercased, stripped of punctuation, and
 
 | Command | Cost | Cooldown | Duration |
 |---|---|---|---|
-| Reverse Gravity | 12% | 8s | 5s |
-| Freeze Enemies | 15% | 10s | 4s |
-| Slow Enemies | 8% | 6s | 6s |
-| Create Platform | 10% | 5s | 8s |
-| Remove Barrier | 14% | 9s | instant |
-| Temporary Invisibility | 16% | 12s | 5s |
-| Short Teleport | 9% | 6s | instant |
-| Time Slow | 20% | 14s | 4s |
-| Reveal Hidden Path | 6% | 10s | instant |
-| Emergency Stabilize | 0% (restores 25%) | 45s | instant |
+| Reverse Gravity | 12% | 4s | 5s |
+| Freeze Enemies | 15% | 5s | 4s |
+| Slow Enemies | 8% | 3s | 6s |
+| Create Platform | 10% | 2.5s | 8s |
+| Remove Barrier | 14% | 4.5s | instant |
+| Temporary Invisibility | 16% | 6s | 5s |
+| Short Teleport | 9% | 3s | instant |
+| Time Slow | 20% | 7s | 4s |
+| Reveal Hidden Path | 6% | 5s | instant |
+| Emergency Stabilize | 0% (restores 18%) | 22.5s | instant |
 
 All values live in one place — `COMMANDS` in `game.js` — for easy rebalancing.
 
