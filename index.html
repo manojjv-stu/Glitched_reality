@@ -110,13 +110,13 @@
     <h2>CREDITS</h2>
     <div class="credits-block">
       <p class="credits-label">GAME CREATED BY</p>
-      <p class="credits-value">Manoj J V</p>
+      <p class="credits-value">[YOUR NAME]</p>
       <p class="credits-label">AI DESIGN &amp; DEVELOPMENT</p>
       <p class="credits-value">Claude / AI-assisted development</p>
       <p class="credits-label">TECHNOLOGY</p>
       <p class="credits-value">HTML5 · CSS3 · JavaScript · Canvas API</p>
       <p class="credits-label">BUILT FOR</p>
-      <p class="credits-value">EVOX 1.0</p>
+      <p class="credits-value">[COMPETITION NAME]</p>
     </div>
     <button class="menu-btn back-btn" data-back="menu">BACK</button>
   </div>
@@ -125,35 +125,42 @@
 <!-- ============ GAME SCREEN ============ -->
 <section id="screen-game" class="screen">
   <div id="game-wrap" class="game-wrap">
-    <canvas id="game-canvas"></canvas>
+    <div id="viewport" class="viewport">
+      <canvas id="game-canvas"></canvas>
 
-    <!-- HUD -->
-    <div class="hud">
-      <div class="hud-top-left">
-        <div class="hud-level" id="hud-level">LEVEL 01 — AWAKENING</div>
-        <div class="hud-stability-label">REALITY STABILITY</div>
-        <div class="stability-bar-wrap">
-          <div class="stability-bar" id="stability-bar"></div>
-          <span class="stability-pct" id="stability-pct">100%</span>
+      <!-- HUD -->
+      <div class="hud">
+        <div class="hud-top-left">
+          <div class="hud-level" id="hud-level">LEVEL 01 — AWAKENING</div>
+          <div class="hud-stability-label">REALITY STABILITY</div>
+          <div class="stability-bar-wrap">
+            <div class="stability-bar" id="stability-bar"></div>
+            <span class="stability-pct" id="stability-pct">100%</span>
+          </div>
         </div>
-      </div>
-      <div class="hud-top-right">
-        <div class="nova-status">
-          <span class="nova-dot" id="nova-dot"></span>
-          <span>NOVA STATUS: <b id="nova-status-text">ONLINE</b></span>
+        <div class="hud-top-right">
+          <div class="nova-status">
+            <span class="nova-dot" id="nova-dot"></span>
+            <span>NOVA STATUS: <b id="nova-status-text">ONLINE</b></span>
+          </div>
+          <button id="btn-pause" class="icon-btn" title="Pause (ESC)">⏸</button>
         </div>
-        <button id="btn-pause" class="icon-btn" title="Pause (ESC)">⏸</button>
+        <div class="hud-objective" id="hud-objective">OBJECTIVE: Reach the exit door</div>
       </div>
-      <div class="hud-objective" id="hud-objective">OBJECTIVE: Reach the exit door</div>
+
+      <!-- NOVA dialogue box -->
+      <div id="nova-dialogue" class="nova-dialogue hidden">
+        <div class="nova-avatar">N</div>
+        <div class="nova-text" id="nova-text"></div>
+      </div>
+
+      <!-- Mobile-ish on-screen controls hint -->
+      <div class="controls-hint">
+        <span>A/D move</span><span>W/SPACE jump</span><span>E interact</span><span>ESC pause</span><span>ENTER run command</span>
+      </div>
     </div>
 
-    <!-- NOVA dialogue box -->
-    <div id="nova-dialogue" class="nova-dialogue hidden">
-      <div class="nova-avatar">N</div>
-      <div class="nova-text" id="nova-text"></div>
-    </div>
-
-    <!-- Command console -->
+    <!-- Command console — docked footer, not an overlay, so it never covers the play area -->
     <div id="console-wrap" class="console-wrap">
       <div class="console-header">
         <span>NOVA COMMAND CONSOLE</span>
@@ -169,11 +176,6 @@
       </div>
       <div id="console-feedback" class="console-feedback"></div>
       <div class="command-chips" id="command-chips"></div>
-    </div>
-
-    <!-- Mobile-ish on-screen controls hint -->
-    <div class="controls-hint">
-      <span>A/D move</span><span>W/SPACE jump</span><span>E interact</span><span>ESC pause</span><span>ENTER run command</span>
     </div>
   </div>
 
