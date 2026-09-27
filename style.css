@@ -113,7 +113,7 @@ body.reduce-motion .menu-bg-grid{animation:none;}
 .mute-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;}
 .save-note{color:var(--green);}
 
-/* ============ PANEL SCREENS (howto/ailab/credits) ============ */
+/* ============ PANEL SCREENS (howto/credits) ============ */
 .panel{
   max-width:880px;width:92%;max-height:88vh;overflow-y:auto;
   background:var(--panel);border:1px solid rgba(46,242,255,0.25);
@@ -127,16 +127,6 @@ body.reduce-motion .menu-bg-grid{animation:none;}
 .howto-card.important{border-color:var(--red);}
 .howto-card.important h3{color:var(--red);}
 .back-btn{margin-top:24px;width:200px;}
-
-.ailab-intro{color:var(--text-dim);}
-.pipeline{display:flex;flex-direction:column;align-items:center;margin:22px 0;}
-.pipe-step{background:#0f1420;border:1px solid var(--purple);color:var(--purple);padding:8px 18px;border-radius:20px;font-size:0.85rem;letter-spacing:0.06em;}
-.pipe-step.final{border-color:var(--green);color:var(--green);}
-.pipe-arrow{color:var(--text-dim);margin:2px 0;}
-.prompt-examples blockquote{
-  border-left:3px solid var(--cyan);margin:10px 0;padding:8px 16px;
-  color:var(--text);background:#0f1420;font-style:italic;font-size:0.9rem;
-}
 
 .credits-block{text-align:center;margin:24px 0;}
 .credits-label{color:var(--text-dim);font-size:0.8rem;letter-spacing:0.15em;margin:16px 0 2px;}
