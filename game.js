@@ -198,12 +198,12 @@ class ParticleSystem {
       p.vy += 300 * dt;
     }
   }
-  draw(ctx, camX) {
+  draw(ctx, camX, camY) {
     for (const p of this.particles) {
       const a = Math.max(0, p.life / p.maxLife);
       ctx.globalAlpha = a;
       ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - camX - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      ctx.fillRect(p.x - camX - p.size / 2, p.y - camY - p.size / 2, p.size, p.size);
     }
     ctx.globalAlpha = 1;
   }
@@ -784,6 +784,7 @@ class Game {
     this.enemies = [];
     this.tempPlatforms = [];
     this.camX = 0;
+    this.camY = 0;
     this.gravityDir = 1;
     this.worldTimeScale = 1;
     this.keys = {};
@@ -965,6 +966,11 @@ class Game {
     this.paused = false;
     this.particles.clear();
     this.ui.updateStability(this.reality.stability); // reflect carried-over stability in HUD
+    // Snap the camera to this level's starting position instead of easing
+    // in from wherever the previous level left off.
+    this._resizeCanvas();
+    this.camX = Math.max(0, Math.min(this.level.width - this.canvas.width, this.player.x - this.canvas.width / 2));
+    this.camY = this._computeTargetCamY(this.player.y);
 
     this.ui.setLevelLabel(this.level.id, this.level.name);
     this.ui.setObjective(this.level.objective);
@@ -1121,6 +1127,17 @@ class Game {
     return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
   }
 
+  /* If the level is shorter than the window, center the whole playable
+     path vertically instead of leaving it stuck near the top. If the level
+     is taller than the window, follow the player and clamp to bounds. */
+  _computeTargetCamY(playerY) {
+    if (this.level.height <= this.canvas.height) {
+      return (this.level.height - this.canvas.height) / 2;
+    }
+    const target = playerY - this.canvas.height / 2;
+    return Math.max(0, Math.min(this.level.height - this.canvas.height, target));
+  }
+
   /* ---------------- ENEMIES / HAZARDS ---------------- */
   _updateEnemies(dt) {
     const now = performance.now() / 1000;
@@ -1178,10 +1195,15 @@ class Game {
     this.particles.update(dt);
     this._checkExit();
 
-    // camera
+    // camera — horizontal follows the player; vertical centers the level's
+    // playable path in the window so the ground isn't pinned near the top
+    // on tall/short viewports.
     const targetCam = this.player.x - this.canvas.width / 2;
     this.camX += (targetCam - this.camX) * Math.min(1, dt * 6);
     this.camX = Math.max(0, Math.min(this.level.width - this.canvas.width, this.camX));
+
+    const targetCamY = this._computeTargetCamY(this.player.y);
+    this.camY += (targetCamY - this.camY) * Math.min(1, dt * 6);
 
     // ambient low-stability screen shake
     if (this.reality.tier >= 3 && !document.body.classList.contains('reduce-motion')) {
@@ -1240,9 +1262,9 @@ class Game {
     ctx.save();
     ctx.shadowColor = '#39ff88'; ctx.shadowBlur = 18;
     ctx.fillStyle = 'rgba(57,255,136,0.25)';
-    ctx.fillRect(ex.x - this.camX, ex.y, ex.w, ex.h);
+    ctx.fillRect(ex.x - this.camX, ex.y - this.camY, ex.w, ex.h);
     ctx.strokeStyle = '#39ff88'; ctx.lineWidth = 2;
-    ctx.strokeRect(ex.x - this.camX, ex.y, ex.w, ex.h);
+    ctx.strokeRect(ex.x - this.camX, ex.y - this.camY, ex.w, ex.h);
     ctx.restore();
 
     // enemies
@@ -1253,7 +1275,7 @@ class Game {
       ctx.save();
       ctx.shadowColor = color; ctx.shadowBlur = 10;
       ctx.fillStyle = color;
-      ctx.fillRect(e.x - this.camX, e.y, e.w, e.h);
+      ctx.fillRect(e.x - this.camX, e.y - this.camY, e.w, e.h);
       ctx.restore();
     }
 
@@ -1263,10 +1285,10 @@ class Game {
     ctx.globalAlpha = p.invisible ? 0.28 : 1;
     ctx.shadowColor = '#2ef2ff'; ctx.shadowBlur = 14;
     ctx.fillStyle = '#e8fbff';
-    ctx.fillRect(p.x - this.camX, p.y, p.w, p.h);
+    ctx.fillRect(p.x - this.camX, p.y - this.camY, p.w, p.h);
     ctx.restore();
 
-    this.particles.draw(ctx, this.camX);
+    this.particles.draw(ctx, this.camX, this.camY);
 
     // RGB split effect at high instability
     if (this.reality.tier >= 3 && !document.body.classList.contains('reduce-motion')) {
@@ -1287,10 +1309,10 @@ class Game {
     ctx.save();
     if (glow) { ctx.shadowColor = border; ctx.shadowBlur = 14; }
     ctx.fillStyle = fill;
-    ctx.fillRect(r.x - this.camX, r.y, r.w, r.h);
+    ctx.fillRect(r.x - this.camX, r.y - this.camY, r.w, r.h);
     ctx.strokeStyle = border;
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(r.x - this.camX, r.y, r.w, r.h);
+    ctx.strokeRect(r.x - this.camX, r.y - this.camY, r.w, r.h);
     ctx.restore();
   }
 }
