@@ -153,15 +153,6 @@ python3 -m http.server 8080
 
 Then open the printed local URL in your browser.
 
-## Vercel Deployment
-
-1. Create a GitHub repository and push this project to it.
-2. Open [vercel.com](https://vercel.com) and sign in.
-3. Click **Import Project** and select your GitHub repository.
-4. Leave the framework preset as **Other** (no build command needed — it's static).
-5. Click **Deploy**.
-6. Open the generated URL, e.g. `https://your-project-name.vercel.app`.
-
 ## AI-Assisted Development
 
 This project was designed and built through a structured, iterative sequence of prompts:
@@ -208,7 +199,7 @@ Manual QA covered:
 
 ```
 GAME CREATED BY
-[YOUR NAME]
+Manoj J V
 
 AI DESIGN & DEVELOPMENT
 Claude / AI-assisted development
@@ -220,5 +211,5 @@ JavaScript
 Canvas API
 
 BUILT FOR
-[COMPETITION NAME]
+EVOX 1.0
 ```
